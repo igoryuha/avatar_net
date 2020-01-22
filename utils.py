@@ -25,6 +25,18 @@ def eval_transform(image_size=512):
     ])
 
 
+def deprocess(tensor):
+    tensor = tensor.cpu()
+    tensor = tensor.numpy()
+    if tensor.ndim == 4:
+        tensor = tensor[0]
+    tensor = tensor.transpose(1, 2, 0)
+    tensor *= np.array([0.229, 0.224, 0.225])
+    tensor += np.array([0.485, 0.456, 0.406])
+    tensor = np.clip(tensor*255, 0, 255).astype(np.uint8)
+    return Image.fromarray(tensor)
+
+
 class Dataset(data.Dataset):
 
     def __init__(self, root, transform=None):
