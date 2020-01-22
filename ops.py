@@ -16,3 +16,14 @@ def AdaIN(content, style, eps=1e-05):
     s_mean, s_var = moments(style)
     c_normalized = (content - c_mean) / torch.sqrt(c_var)
     return torch.sqrt(s_var) * c_normalized + s_mean
+
+
+def TVloss(img, tv_weight):
+    """
+    Inputs:
+    - img: shape (N, C, H, W)
+    """
+    w_variance = torch.sum(torch.pow(img[:, :, :, :-1] - img[:, :, :, 1:], 2))
+    h_variance = torch.sum(torch.pow(img[:, :, :-1, :] - img[:, :, 1:, :], 2))
+    loss = tv_weight * (h_variance + w_variance)
+    return loss

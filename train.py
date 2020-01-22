@@ -1,8 +1,11 @@
 import torch
+from torch import nn
 import torch.utils.data as data
 from models import VGG19, Decoder
 from utils import train_transform, Dataset, InfiniteSampler, deprocess
+from ops import TVloss
 import argparse
+from tqdm import tqdm
 
 
 parser = argparse.ArgumentParser(description='Avatar Net')
@@ -18,6 +21,9 @@ parser.add_argument('--image-size', type=int, default=512, help='Size of images 
 
 # Training options
 parser.add_argument('--batch-size', type=int, default=2)
+parser.add_argument('--max-iter', type=int, default=160000)
+parser.add_argument('--tv-weight', type=float, default=1.)
+parser.add_argument('--feature-weight', type=float, default=0.1)
 
 args = parser.parse_args()
 
@@ -36,3 +42,23 @@ data_loader = iter(data.DataLoader(
     sampler=InfiniteSampler(dataset)
 ))
 
+criterion = nn.MSELoss()
+
+for global_step in tqdm(range(args.max_iter)):
+
+    inputs = next(data_loader).to(device)
+
+    inputs_features = encoder(inputs)
+    reconstructed_inputs = decoder(inputs_features.relu4_1, inputs_features)
+
+    pixel_loss = criterion(inputs, reconstructed_inputs)
+
+    reconstructed_features = encoder(reconstructed_inputs)
+
+    feature_loss = 0
+    for inp_f, rec_f in zip(inputs_features, reconstructed_features):
+        feature_loss += 1/4 * criterion(inp_f, rec_f)
+
+    tv_loss = TVloss(reconstructed_inputs, args.tv_weight)
+
+    total_loss = pixel_loss + args.feature_weight * feature_loss + tv_loss
