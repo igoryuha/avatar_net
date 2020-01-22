@@ -23,7 +23,7 @@ def TVloss(img, tv_weight):
     Inputs:
     - img: shape (N, C, H, W)
     """
-    w_variance = torch.sum(torch.pow(img[:, :, :, :-1] - img[:, :, :, 1:], 2))
-    h_variance = torch.sum(torch.pow(img[:, :, :-1, :] - img[:, :, 1:, :], 2))
+    w_variance = torch.mean(torch.pow(img[:, :, :, :-1] - img[:, :, :, 1:], 2))
+    h_variance = torch.mean(torch.pow(img[:, :, :-1, :] - img[:, :, 1:, :], 2))
     loss = tv_weight * (h_variance + w_variance)
     return loss
