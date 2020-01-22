@@ -37,6 +37,10 @@ def deprocess(tensor):
     return Image.fromarray(tensor)
 
 
+def load_image(path):
+    return Image.open(path).convert('RGB')
+
+
 class Dataset(data.Dataset):
 
     def __init__(self, root, transform=None):
@@ -50,7 +54,7 @@ class Dataset(data.Dataset):
 
     def __getitem__(self, index):
         full_path = os.path.join(self.root, self.data[index])
-        image = Image.open(full_path).convert('RGB')
+        image = load_image(full_path)
         if self.transform:
             image = self.transform(image)
         return image
@@ -78,3 +82,21 @@ class InfiniteSampler(data.sampler.Sampler):
 
     def __len__(self):
         return 2 ** 31
+
+
+def extract_image_names(path):
+    r_ = []
+    valid_ext = ['.jpg', '.png']
+
+    items = os.listdir(path)
+
+    for item in items:
+        item_path = os.path.join(path, item)
+
+        _, ext = os.path.splitext(item_path)
+        if ext not in valid_ext:
+            continue
+
+        r_.append(item_path)
+
+    return r_
