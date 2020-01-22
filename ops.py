@@ -2,8 +2,8 @@ import torch
 
 
 def moments(tensor, eps=1e-5):
-    mean = tensor.mean((2,3), keepdim=True)
-    var = tensor.var((2,3), keepdim=True, unbiased=False) + eps
+    mean = tensor.mean((2, 3), keepdim=True)
+    var = tensor.var((2, 3), keepdim=True, unbiased=False) + eps
     return mean, var
 
 
