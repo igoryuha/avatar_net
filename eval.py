@@ -86,7 +86,7 @@ with torch.no_grad():
         content = content.to(device)
 
         for j in range(len(style_paths)):
-            style = load_image(style_paths[i])
+            style = load_image(style_paths[j])
             style = s_transform(style).unsqueeze(0)
             style = style.to(device)
 
