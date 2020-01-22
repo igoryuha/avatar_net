@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.models import vgg19
+from ops import AdaIN
 from collections import namedtuple
 from copy import deepcopy
 
@@ -99,7 +100,7 @@ class Decoder(nn.Module):
         self.relu2_1 = self.net[20:27]
         self.relu1_1 = self.net[27:]
 
-    def forward(self, x, s_featues):
+    def forward(self, x, s_features):
         d_cs3 = self.relu4_1(x)
         F_sf3 = AdaIN(d_cs3, s_features.relu3_1)
         d_cs2 = self.relu3_1(F_sf3)
