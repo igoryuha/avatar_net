@@ -92,13 +92,16 @@ vgg_decoder_relu5_1 = nn.Sequential(
 
 class Decoder(nn.Module):
 
-    def __init__(self):
+    def __init__(self, pretrained_path=None):
         super(Decoder, self).__init__()
         self.net = nn.Sequential(*list(deepcopy(vgg_decoder_relu5_1[13:]).children()))
         self.relu4_1 = self.net[:13]
         self.relu3_1 = self.net[13:20]
         self.relu2_1 = self.net[20:27]
         self.relu1_1 = self.net[27:]
+
+        if pretrained_path is not None:
+            self.load_state_dict(torch.load(pretrained_path, map_location=lambda storage, loc: storage))
 
     def forward(self, x, s_features):
         d_cs3 = self.relu4_1(x)
