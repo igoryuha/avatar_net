@@ -3,7 +3,7 @@ from torch import nn
 import torch.utils.data as data
 from models import VGG19, Decoder
 from utils import train_transform, eval_transform, Dataset, InfiniteSampler, deprocess, extract_image_names, load_image
-from ops import TVloss
+from ops import TVloss, learning_rate_decay
 import argparse
 from tqdm import tqdm
 import os
@@ -26,6 +26,7 @@ parser.add_argument('--image-size', type=int, default=512, help='Size of images 
 # Training options
 parser.add_argument('--batch-size', type=int, default=2)
 parser.add_argument('--learning-rate', type=float, default=0.001)
+parser.add_argument('--learning-rate-decay', type=float, default=0)
 parser.add_argument('--max-iter', type=int, default=160000)
 parser.add_argument('--tv-weight', type=float, default=1.)
 parser.add_argument('--feature-weight', type=float, default=0.1)
@@ -86,9 +87,10 @@ for global_step in tqdm(range(args.max_iter)):
     optimizer.step()
 
     loss_buff = momentum * total_loss.item() + (1 - momentum) * loss_buff
+    lr = learning_rate_decay(optimizer, args.learning_rate, global_step, args.learning_rate_decay)
 
     if global_step % args.print_every == 0:
-        tqdm.write('step: %d, loss: %f' % (global_step, loss_buff))
+        tqdm.write('step: %d, loss: %f, lr: %f' % (global_step, loss_buff, lr))
 
     if global_step % args.save_every == 0:
         if not os.path.exists(args.model_save_dir):

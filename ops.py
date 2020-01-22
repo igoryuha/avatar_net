@@ -139,3 +139,13 @@ def coloring(x, y):
 
     transform_matrix = e.mm(torch.diag(d ** 0.5)).mm(e.t())
     return transform_matrix.mm(x) + y_mean
+
+
+def learning_rate_decay(optimizer, init_lr, global_step, decay_rate):
+
+    lr = init_lr / (1. + global_step * decay_rate)
+
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
+    return lr
